@@ -8,6 +8,15 @@ app.use(express.json())
 app.use(express.urlencoded({extended: false}))
 
 
+
+
+// router
+import router from "./routers/user.router.js"
+app.use('/api/delivery', router)
+
+
+
+
 // .env
 import dotenv from "dotenv"
 dotenv.config()
