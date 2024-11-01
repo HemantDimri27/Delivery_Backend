@@ -1,4 +1,6 @@
 import { User } from "../models/user.model.js";
+import bcrypt from "bcryptjs"
+import { createToken } from "../utilities/jwtUtilities.js";
 
 
 const createUser = async(req, res)=>{
@@ -14,6 +16,8 @@ const createUser = async(req, res)=>{
         const {name, mobile, email, coordinates, password } = req.body;
 
         const {latitude, longitude} = coordinates || {};
+
+        const hashedPassword = await bcrypt.hash(password, 10);
     
     
         // 2.
@@ -34,7 +38,7 @@ const createUser = async(req, res)=>{
             email, 
             coordinates: {latitude, longitude},
             email,
-            password,
+            password : hashedPassword,
         })
     
     
@@ -44,13 +48,15 @@ const createUser = async(req, res)=>{
         if(!createdUser){
             res.send("User can't created!");
         }
-        console.log("User created successfully!");
-        res.send(`User created successfully! \n ${createdUser}`);
+
+        const token = createToken({ email });
+        console.log(`User created successfully! \n ${createdUser} \n ${token}`);
+        res.send(`User created successfully!`);
     
     
     } catch (error) {
-        console.log("Error in create User!")
-        res.send(`Error in create User! \n ${error}`)
+        console.log(`Error in create User! \n ${error}`)
+        res.send(`Error in create User!`)
     }
 
 }
@@ -74,8 +80,6 @@ const loginUser = async(req, res) => {
     
     
     
-    
-    
         // 2. 
         const userData = await User.findOne(
             {email}
@@ -85,14 +89,16 @@ const loginUser = async(req, res) => {
             return res.send("invalid userName/email or password")
         }
     
-        if(!(userData.email == email && userData.password == password)){
+        if(!(userData.email == email && bcrypt.compare(password, userData.password))){
             return res.send("invalid userName/email or password")
         }
         
     
     
         // 3.
-        res.send("User login successfully!")
+        const token = createToken({ email });
+        console.log(`User login \n ${token}`);
+        return res.send({ message: "User logged in successfully!", token: token });
     
     
     } catch (error) {
@@ -126,11 +132,11 @@ const updateUser = async(req, res)=>{
         const {email, name, mobile, coordinates, password} = req.body;
         const {longitude, latitude} = coordinates || {};
         const upUser = await User.updateOne({email}, { $set: {name: name, mobile: mobile, latitude: latitude, longitude: longitude, password: password }})
-        console.log("User update successfully!");
-        res.send(`User update successfully! \n ${upUser}`);
+        console.log(`User update successfully! \n ${upUser}`);
+        res.send(`User update successfully!`);
     } catch (error) {
-        console.log("Error in update user.");
-        res.send(`Error in update user. \n ${error}`)
+        console.log(`Error in update user. \n ${error}`);
+        res.send(`Error in update user.`)
     }
 }
 

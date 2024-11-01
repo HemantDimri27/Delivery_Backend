@@ -41,12 +41,12 @@ const createInventory = async(req, res)=>{
             res.send("Inventory can't created!");
         }
     
-        console.log("Inventory created successfully!");
-        res.send(`Inventory created successfully! \n ${createdInventory}`);
+        console.log(`Inventory created successfully! \n ${createdInventory}`);
+        res.send(`Inventory created successfully!`);
     
     
     } catch (error) {
-        console.log("Error in createInventory!")
+        console.log(`Error in createInventory! \n ${error}`)
         res.send(`Error in createInventory! \n ${error}`)
     }
 
@@ -73,11 +73,11 @@ const updateInventory = async(req, res)=>{
         const {name, capacity, coordinates} = req.body;
         const {longitude, latitude} = coordinates || {};
         const upInventory = await Inventory.updateOne({name}, { $set: {name: name, capacity: capacity, latitude: latitude, longitude: longitude }})
-        console.log('Inventory update successfully!');
-        res.send(`Inventory update successfully! \n ${upInventory}`);
+        console.log(`Inventory update successfully! \n ${upInventory}`);
+        res.send(`Inventory update successfully!`);
     } catch (error) {
-        console.log("Error in update inventory.");
-        res.send(`Error in update inventory. \n ${error}`)
+        console.log(`Error in update inventory. \n ${error}`);
+        res.send(`Error in update inventory.`)
     }
 }
 
