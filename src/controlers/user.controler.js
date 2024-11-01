@@ -1,6 +1,7 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs"
 import { createToken } from "../utilities/jwtUtilities.js";
+import { DateTime } from 'luxon';
 
 
 const createUser = async(req, res)=>{
@@ -116,10 +117,23 @@ const loginUser = async(req, res) => {
 
 const allUsers = async(req, res)=>{
     try {
-        const upUserss = await User.find({})
-        res.send(upUserss)
+        const { sort, date } = req.query;
+        const sortOrder = sort === 'asc' ? 1 : -1;
+
+        let query = {};
+
+        if (date) {
+            const startDate = DateTime.fromFormat(date, 'yyyy-MM-dd').startOf('day').toJSDate();
+            const endDate = DateTime.fromFormat(date, 'yyyy-MM-dd').endOf('day').toJSDate();
+            query.time_of_registration = { $gte: startDate, $lte: endDate };
+        }
+
+        const users = await User.find(query).sort({ time_of_registration: sortOrder });
+        console.log("Users shows successfully!");
+        res.send(users);
     } catch (error) {
-        res.send(`Error in showing upUserss! \n ${error}`)
+        console.log(`Error in showing upUserss! \n ${error}`);
+        res.send(`Error in showing upUserss!`)
     }
 }
 
